@@ -2,11 +2,11 @@ function param = getSubjParam(unique_id, exp, session)
 
 %% set path and pp-specific file locations
 if exp == 'l'
-    unique_numbers = [29];
+    unique_numbers = [29, 40, 25, 36, 77, 75, 13];
     param.path = '\\scistor.vu.nl\shares\FGB-ETP-CogPsy-ProactiveBrainLab\core_lab_members\Anna\Data\m7 - test-retest\Data Lissy\';
 
 elseif exp == 'b'
-    unique_numbers = [40];
+    unique_numbers = [40, 29, 30, 97, 17, 99];
     param.path = '\\scistor.vu.nl\shares\FGB-ETP-CogPsy-ProactiveBrainLab\core_lab_members\Anna\Data\m7 - test-retest\Data Bernadett\';
 
 end

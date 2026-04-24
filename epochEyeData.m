@@ -3,8 +3,17 @@
 %% start clean
 clear; clc; close all;
 
-pp = {40, 'b';
-      29, 'l'};
+pp = {40, 'l', 2;
+      29, 'b', 2;
+      25, 'l', 1;
+      36, 'l', 1;
+      77, 'l', 1;
+      75, 'l', 1;
+      13, 'l', 1;
+      30, 'b', 1;
+      97, 'b', 1;
+      17, 'b', 1;
+      99, 'b', 1};
 
 %% set loops
 for p = 1:size(pp, 1)
@@ -15,7 +24,7 @@ for p = 1:size(pp, 1)
     poststim    = 2.5; % until 2.5 s after
     
     %% participant-specific information
-    param = getSubjParam(pp{p, 1}, pp{p, 2}, 1); 
+    param = getSubjParam(pp{p, 1}, pp{p, 2}, pp{p, 3}); 
     disp(['getting data from ', param.subjName]);
     
     %% read header of asc file that contains all messages etc.
@@ -84,7 +93,7 @@ for p = 1:size(pp, 1)
     eyedata = ft_selectdata(cfg, eyedata);
     
     %% save data as function of pp name and eyedata session
-    save([param.savedir, '\epoched_data\eyedata_m6', '__', param.subjName, '_', param.session], 'eyedata');
+    save([param.savedir, '\epoched_data\eyedata_m7', '__', param.subjName, '_', param.session], 'eyedata');
     
     %% test plot
     figure; 

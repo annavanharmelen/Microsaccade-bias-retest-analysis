@@ -7,18 +7,29 @@ clear; clc; close all;
 oneOrTwoD  = 1;
 oneOrTwoD_options = {'_1D','_2D'};
 
-plotResults = 1;
+plotResults = 0;
 
 %% participants
-pp = {40, 'b';
-      29, 'l'};
+pp = {40, 'b', 1;
+      29, 'l', 1;
+      40, 'l', 2;
+      29, 'b', 2;
+      25, 'l', 1;
+      36, 'l', 1;
+      77, 'l', 1;
+      75, 'l', 1;
+      13, 'l', 1;
+      30, 'b', 1;
+      97, 'b', 1;
+      17, 'b', 1;
+      99, 'b', 1};
 
 %% loop over participants
 for p = 1:size(pp, 1)
     
     %% load epoched data of this participant data
-    param = getSubjParam(pp{p, 1}, pp{p, 2}, 1); 
-    load([param.savedir, '\epoched_data\eyedata_m6', '__', param.subjName, '_', param.session], 'eyedata');
+    param = getSubjParam(pp{p, 1}, pp{p, 2}, pp{p, 3}); 
+    load([param.savedir, '\epoched_data\eyedata_m7', '__', param.subjName, '_', param.session], 'eyedata');
 
     %% only keep channels of interest
     cfg = [];
