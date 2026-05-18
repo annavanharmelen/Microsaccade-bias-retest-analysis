@@ -3,7 +3,7 @@ close all
 clc
 
 %% set parameters and loops
-display_percentage_ok = 0;
+display_percentage_ok = 1;
 plot_individuals = 1;
 plot_averages = 1;
 
@@ -16,7 +16,7 @@ for p = 1:size(pp, 1)
     ppnum(p) = pp{p, 1};
     figure_nr = 1;
     
-    param = getSubjParam(pp{p, 1}, pp{p, 2}, 1); 
+    param = getSubjParam(pp{p, 1}, pp{p, 2}, pp{p, 3}); 
     disp(['getting data from ', param.subjName]);
     
     %% load actual behavioural data
@@ -25,7 +25,7 @@ for p = 1:size(pp, 1)
     %% check percentage oktrials
     % select trials with reasonable decision times
     oktrials = abs(zscore(behdata.idle_reaction_time_in_ms))<=3; 
-    percentageok(p) = mean(oktrials)*100;
+    percentageok(p,1) = mean(oktrials)*100;
   
     % display percentage ok trials
     if display_percentage_ok
