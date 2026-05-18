@@ -27,7 +27,7 @@ subplot_size = ceil(sqrt(size(pp2do, 1)));
 nsmooth         = 200;
 plotSinglePps   = 1;
 plotGAs         = 1;
-xlimtoplot      = [-250 1500];
+xlimtoplot      = [-100 1500];
 
 %% load and aggregate the data from all pp
 s = 0;
@@ -84,7 +84,7 @@ if plotSinglePps
         plot(saccade.time, squeeze(d2(sp,1,:)));
         plot(xlim, [0,0], '--k');
         xlim(xlimtoplot);
-        % ylim([-0.5 0.5]);
+        ylim([0 2]);
         title(pp2do(sp));
     end
     legend({'toward', 'away'});
@@ -96,7 +96,7 @@ if plotSinglePps
         plot(saccade.time, squeeze(d3(sp,1,:)));
         plot(xlim, [0,0], '--k');
         xlim(xlimtoplot);
-        % ylim([-0.5 0.5]);
+        ylim([-1 1]);
         title(pp2do(sp));
     end
     legend({'effect'});
@@ -121,13 +121,14 @@ end
 
 %% Plot grand average data patterns of interest, with error bars
 if plotGAs
-    % plot toward, away and effect - all
+    % plot toward and away  - all
     figure; 
     hold on
     p1 = frevede_errorbarplot(saccade.time, squeeze(d1(:,1,:)), 'b', 'se');
     p2 = frevede_errorbarplot(saccade.time, squeeze(d2(:,1,:)), 'r', 'se');
     plot(xlim, [0,0], '--', 'LineWidth',2, 'Color', [0.6, 0.6, 0.6]);
     legend([p1, p2], {'toward', 'away'});
+    xlim(xlimtoplot);
     ylim([-0.2, 1])
     ylabel('Rate (Hz)');
     xlabel('Time (ms)');
