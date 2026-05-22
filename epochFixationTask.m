@@ -1,0 +1,102 @@
+%% Step1--Trial epoch extraction
+
+%% start clean
+clear; clc; close all;
+
+pp = [19, 25, 29, 30, 36, 40, 49, 57, 66, 75, 77, 95, 97];
+
+%% set participant loop
+for p = 1:size(pp, 2)
+    % set session loop
+    for session = [1, 2]
+
+        %% Set trig labels
+        values2use  = [1000]; % cue onset
+        prestim     = 0; % 
+        poststim    = 298; % until almost 300 seconds (= 5 minutes) after
+        
+        %% participant-specific information
+        param = getSubjParam(pp(p), session);
+        disp(['getting data from ', param.subjName, ' session ', param.session]);
+        
+        %% read header of asc file that contains all messages etc.
+        hdr = ft_read_header([param.eds]);
+        hdr.Fs = 1000;
+        
+        %% read in full dataset at once
+        cfg = [];
+        cfg.dataset = param.eds;
+        cfg.hdr = hdr;
+        eyedata = ft_preprocessing(cfg);
+        
+        %% nan blinks using function
+        plotting = true;
+        eyedata = frevede_nanBlinks_1eye(eyedata, hdr, plotting);
+        
+        %% epoch using custom code
+        clear event;
+        idx = 0;
+        for t = 1:length((hdr.orig.msg))
+            x = findstr(hdr.orig.msg{t}, 'trig1000'); % find timepoints that are labelled with 'trig1000'
+            if ~isempty(x) % whenever 'trig1000' found, double-check what trig value it has, and what the data sample is, to epoch around.
+                idx = idx+1;
+                disp(['found trigger no. ' num2str(idx)]);
+                event.label(idx) =  {[hdr.orig.msg{t}(x:end)]};
+                event.timestamp(idx) = str2double([hdr.orig.msg{t}(4:x-1)]);
+                
+                % find closest possible sample to make sure to always have one...
+                [a,b] = min(abs(hdr.orig.dat(1,:) - event.timestamp(idx)));
+                event.sample(idx) = b;
+            end
+        end
+
+        if idx > 1
+            poststim = poststim / 2; % some participants had the fixation task in two parts, then poststim time is halved
+        elseif idx == 0
+            continue % some participants did not get the fixation task due to a problem
+        end
+        
+        % get labels of triggers we wish to epoch around
+        idx = 0;
+        for v = values2use
+            idx = idx+1;   
+            lab2use(idx) = {['trig', num2str(v)]}; 
+        end
+
+        % get trl with begin sample, endsample, and offset
+        trloi = match_str(event.label, lab2use); % event of interest from all events
+        soi = event.sample(trloi)'; % samples of interest, given trials of interest.
+        trl_eye = [soi+prestim*hdr.Fs, soi+(poststim-0.001)*hdr.Fs, ones(length(soi),1)*prestim*hdr.Fs]; % determine startsample, endsample, and offset
+        
+        % re-define trial after trig & timerange selection
+        cfg = [];
+        cfg.trl = trl_eye;
+        eyedata = ft_redefinetrial(cfg, eyedata);
+        
+        % get timepoints for each epoch
+        trigval = [];
+        for trl = 1:length(trloi)
+            trigval(trl) = str2double(event.label{trloi(trl)}(5:end));
+            eyedata.time{trl} = prestim:1/hdr.Fs:poststim-1/hdr.Fs; % for some reason timing was way off an inconsistent across pp, even though trl_eye looked fine. Hopefully this corrects it...
+        end
+        eyedata.trialinfo(:,1) = trigval';
+
+        %% get to three channels
+        % we only need x-axis, y-axis, & pupil from now on
+        eyedata.label(2:4) = {'eyeX','eyeY','eyePupil'};
+        
+        % keep only relevant eye-data channels
+        cfg = [];
+        cfg.channel = {'eyeX','eyeY','eyePupil'};
+        eyedata = ft_selectdata(cfg, eyedata);
+        
+        %% save data as function of pp name and eyedata session
+        save([param.savedir, '\epoched_data\fixationdata_m7', '__', param.subjName, '_', param.session], 'eyedata');
+        
+        %% test plot
+        figure; 
+        plot(eyedata.time{1}, eyedata.trial{1}); legend(eyedata.label);
+    
+    %% end loops
+    end % end of session loop
+end % end of pp loop
